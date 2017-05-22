@@ -5,6 +5,20 @@
 
 #define PORT_NO 8080
 
+typedef struct 
+{
+	char message[200];
+	int choice0_id;
+	char choice0[200];
+	int choice1_id;
+	char choice1[200];
+} MESSAGE_DATA;
+
+MESSAGE_DATA stDataList[] = {
+	{"óEé“Ç…Ç»ÇËÇ‹Ç∑Ç©ÅH",1,"ÇÕÇ¢",0,"Ç¢Ç¢Ç¶"},
+	{"óEé“ÇÕêlÇ…åæÇÌÇÍÇƒÇ»ÇÈÇ‡ÇÃÇ∂Ç·Ç†ÇËÇ‹ÇπÇÒÅI",255,"",255,""},
+};
+
 int main()
 {
 	WSADATA wsaData;
@@ -44,7 +58,7 @@ int main()
 	printf("SOCK:%d\n", sock);
 
 	bind(sock, (struct sockaddr *)&adr, sizeof(adr));
-	listen(sock, 3);
+	listen(sock, 1);
 	for (int i = 0; i < 3; i++)
 	{
 		struct sockaddr_in adr2;
@@ -57,12 +71,26 @@ int main()
 			printf("INVALID_SOCKET\n");
 			continue;
 		}
+		while (true)
+		{
+			//	Receive
+			memset(buf, 0, sizeof(buf));
+			nBuf = recv(sockClient, buf, sizeof(buf), 0);
 
-		//	Receive
-		memset(buf, 0, sizeof(buf));
-		nBuf = recv(sockClient, buf, sizeof(buf), 0);
+			printf("%s\n", buf);
 
-		printf("%s", buf);
+			//	Sending
+			int nIndex = atoi(buf);
+
+			MESSAGE_DATA data;
+			memcpy_s(&data, sizeof(data), (char *)&stDataList[nIndex], sizeof(MESSAGE_DATA));
+			nBuf = send(sockClient, (char *)&data, sizeof(MESSAGE_DATA), 0);
+		}
+
+		
+
+		/*char msg[] = "HTTP/1.1 200 OK\r\n\r\n";
+		nBuf = send(sockClient, msg, strlen(msg), 0);*/
 
 		shutdown(sockClient, SD_BOTH);
 		closesocket(sockClient);
